@@ -1,9 +1,8 @@
 package com.example.moviefinderapps
 
 
-import kotlinx.coroutines.CoroutineScope
+
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.BufferedReader

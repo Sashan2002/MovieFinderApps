@@ -4,161 +4,142 @@ package com.example.moviefinderapps
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
-//@Composable
-//fun AddMovieScreen(movieDao: MovieDao) {
-//    val scope = rememberCoroutineScope()
-//
-//    var title by remember { mutableStateOf("") }
-//    var year by remember { mutableStateOf("") }
-//    var rate by remember { mutableStateOf("") }
-//    var released by remember { mutableStateOf("") }
-//    var runtime by remember { mutableStateOf("") }
-//    var genre by remember { mutableStateOf("") }
-//    var director by remember { mutableStateOf("") }
-//    var writer by remember { mutableStateOf("") }
-//    var actors by remember { mutableStateOf("") }
-//    var plot by remember { mutableStateOf("") }
-//
-//    Column(modifier = Modifier.padding(16.dp)) {
-//        Text("Add Movie", style = MaterialTheme.typography.headlineMedium)
-//
-//        TextField(value = title, onValueChange = { title = it }, label = { Text("Title") })
-//        TextField(value = year, onValueChange = { year = it }, label = { Text("Year") })
-//        TextField(value = rate, onValueChange = { rate = it }, label = { Text("Rate") })
-//        TextField(value = released, onValueChange = { released = it }, label = { Text("Released") })
-//        TextField(value = runtime, onValueChange = { runtime = it }, label = { Text("Runtime") })
-//        TextField(value = genre, onValueChange = { genre = it }, label = { Text("Genre") })
-//        TextField(value = director, onValueChange = { director = it }, label = { Text("Director") })
-//        TextField(value = writer, onValueChange = { writer = it }, label = { Text("Writer") })
-//        TextField(value = actors, onValueChange = { actors = it }, label = { Text("Actors") })
-//        TextField(value = plot, onValueChange = { plot = it }, label = { Text("Plot") })
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        Button(onClick = {
-//            val movie = Movie(
-//                title = title,
-//                year = year,
-//                rate = rate,
-//                released = released,
-//                runtime = runtime,
-//                genre = genre,
-//                director = director,
-//                writer = writer,
-//                actors = actors,
-//                plot = plot
-//            )
-//
-//            scope.launch {
-//                movieDao.insertMovie(movie)
-//            }
-//        }) {
-//            Text("Save Movie")
-//        }
-//
-//
-//    }
-//}
 
 @Composable
 fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
-    var title by remember { mutableStateOf("") }
-    var year by remember { mutableStateOf("") }
-    var rate by remember { mutableStateOf("") }
-    var released by remember { mutableStateOf("") }
-    var runtime by remember { mutableStateOf("") }
-    var genre by remember { mutableStateOf("") }
-    var director by remember { mutableStateOf("") }
-    var writer by remember { mutableStateOf("") }
-    var actors by remember { mutableStateOf("") }
-    var plot by remember { mutableStateOf("") }
+    var title by rememberSaveable { mutableStateOf("") }
+    var year by rememberSaveable { mutableStateOf("") }
+    var rate by rememberSaveable { mutableStateOf("") }
+    var released by rememberSaveable { mutableStateOf("") }
+    var runtime by rememberSaveable { mutableStateOf("") }
+    var genre by rememberSaveable { mutableStateOf("") }
+    var director by rememberSaveable { mutableStateOf("") }
+    var writer by rememberSaveable { mutableStateOf("") }
+    var actors by rememberSaveable { mutableStateOf("") }
+    var plot by rememberSaveable { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(8.dp)
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp),
 
-    ) {
-        Text("Enter Movie Details", style = MaterialTheme.typography.headlineSmall)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
 
-        // Movie input fields
-//        OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Title") })
-//        OutlinedTextField(value = year, onValueChange = { year = it }, label = { Text("Year") })
-//        OutlinedTextField(value = rate, onValueChange = { rate = it }, label = { Text("Rate") })
-//        OutlinedTextField(value = released, onValueChange = { released = it }, label = { Text("Released") })
-//        OutlinedTextField(value = runtime, onValueChange = { runtime = it }, label = { Text("Runtime") })
-//        OutlinedTextField(value = genre, onValueChange = { genre = it }, label = { Text("Genre") })
-//        OutlinedTextField(value = director, onValueChange = { director = it }, label = { Text("Director") })
-//        OutlinedTextField(value = writer, onValueChange = { writer = it }, label = { Text("Writer") })
-//        OutlinedTextField(value = actors, onValueChange = { actors = it }, label = { Text("Actors") })
-//        OutlinedTextField(value = plot, onValueChange = { plot = it }, label = { Text("Plot") })
-//
-//        // Submit button
-//        Button(onClick = {
-//            scope.launch {
-//                val movie = Movie(title, year,rate, released, runtime, genre, director, writer, actors, plot)
-//                movieDao.insertMovie(movie)
-//                navController.popBackStack() // Go back after saving
-//            }
-//        }) {
-//            Text("Submit")
-//        }
-        TextField(value = title, onValueChange = { title = it }, label = { Text("Title") })
-        TextField(value = year, onValueChange = { year = it }, label = { Text("Year") })
-        TextField(value = rate, onValueChange = { rate = it }, label = { Text("Rate") })
-        TextField(value = released, onValueChange = { released = it }, label = { Text("Released") })
-        TextField(value = runtime, onValueChange = { runtime = it }, label = { Text("Runtime") })
-        TextField(value = genre, onValueChange = { genre = it }, label = { Text("Genre") })
-        TextField(value = director, onValueChange = { director = it }, label = { Text("Director") })
-        TextField(value = writer, onValueChange = { writer = it }, label = { Text("Writer") })
-        TextField(value = actors, onValueChange = { actors = it }, label = { Text("Actors") })
-        TextField(value = plot, onValueChange = { plot = it }, label = { Text("Plot") })
+            ) {
+            Text("Enter Movie Details",  style = MaterialTheme.typography.headlineLarge,color = MaterialTheme.colorScheme.primary)
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            val movie = Movie(
-                title = title,
-                year = year,
-                rate = rate,
-                released = released,
-                runtime = runtime,
-                genre = genre,
-                director = director,
-                writer = writer,
-                actors = actors,
-                plot = plot
-            )
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Title") })
+            OutlinedTextField(value = year, onValueChange = { year = it }, label = { Text("Year") })
+            OutlinedTextField(value = rate, onValueChange = { rate = it }, label = { Text("Rate") })
+            OutlinedTextField(
+                value = released,
+                onValueChange = { released = it },
+                label = { Text("Released") })
+            OutlinedTextField(
+                value = runtime,
+                onValueChange = { runtime = it },
+                label = { Text("Runtime") })
+            OutlinedTextField(
+                value = genre,
+                onValueChange = { genre = it },
+                label = { Text("Genre") })
+            OutlinedTextField(
+                value = director,
+                onValueChange = { director = it },
+                label = { Text("Director") })
+            OutlinedTextField(
+                value = writer,
+                onValueChange = { writer = it },
+                label = { Text("Writer") })
+            OutlinedTextField(
+                value = actors,
+                onValueChange = { actors = it },
+                label = { Text("Actors") })
+            OutlinedTextField(value = plot, onValueChange = { plot = it }, label = { Text("Plot") })
 
-            scope.launch {
-                movieDao.insertMovie(movie)
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(onClick = {
+                    val movie = Movie(
+                        title = title,
+                        year = year,
+                        rate = rate,
+                        released = released,
+                        runtime = runtime,
+                        genre = genre,
+                        director = director,
+                        writer = writer,
+                        actors = actors,
+                        plot = plot
+
+                    )
+
+                    scope.launch {
+                        movieDao.insertMovie(movie)
+
+                        snackbarHostState.showSnackbar("Successfully added")
+                    }
+                }) {
+                    Text("Save Movie")
+                }
+
+                // View All Movies button
+                Button(onClick = {
+                    navController.navigate("view_all_movies")
+                }) {
+                    Text("View All Movies")
+                }
+                Button(onClick = {
+                    // Clear all fields
+                    title = ""
+                    year = ""
+                    rate = ""
+                    released = ""
+                    runtime = ""
+                    genre = ""
+                    director = ""
+                    writer = ""
+                    actors = ""
+                    plot = ""
+                    //viewModel.clearForm()
+                }) {
+                    Text("Clear")
+                }
             }
-        }) {
-            Text("Save Movie")
-        }
-
-        // View All Movies button
-        Button(onClick = {
-            navController.navigate("view_all_movies")
-        }) {
-            Text("View All Movies")
         }
     }
 }
@@ -167,11 +148,12 @@ fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
 // Search Movies Screen - Requirement 3 & 4
 @Composable
 fun SearchMoviesScreen() {
-    var searchQuery by remember { mutableStateOf("") }
-    var movieDetails by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var movieDetails by rememberSaveable { mutableStateOf("") }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
+    val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
     // This is used to handle device rotation and save state
     val viewModel = remember { SearchViewModel() }
 
@@ -185,98 +167,108 @@ fun SearchMoviesScreen() {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Search for Movies",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
 
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-                // Update ViewModel to maintain state on rotation
-                viewModel.searchQuery = it
-            },
-            label = { Text("Enter Movie Title") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Row(
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp)
         ) {
-            Button(
-                onClick = {
-                    scope.launch {
-                        isLoading = true
-                        movieDetails = searchMovieByTitle(searchQuery)
-                        // Update ViewModel to maintain state on rotation
-                        viewModel.movieDetails = movieDetails
-                        isLoading = false
-                    }
+            Text(
+                text = "Search for Movies",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+                    // Update ViewModel to maintain state on rotation
+                    viewModel.searchQuery = it
                 },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Retrieve Movie")
-            }
+                label = { Text("Enter Movie Title") },
+                modifier = Modifier.fillMaxWidth()
+            )
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Button(
-                onClick = {
-                    if (movieDetails.isNotEmpty() && movieDetails != "Movie not found") {
-                        scope.launch {
-                            val movie = parseMovieString(movieDetails)
-                            movieDao.insertMovie(movie)
-                            // Show snackbar or toast here
-                        }
-                    }
-                },
-                modifier = Modifier.weight(1f),
-                enabled = movieDetails.isNotEmpty() && movieDetails != "Movie not found"
-            ) {
-                Text("Save movie to Database")
-            }
-        }
-
-        if (isLoading) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (movieDetails.isNotEmpty()) {
-            Card(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = movieDetails,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Button(
+                    onClick = {
+                        scope.launch {
+                            isLoading = true
+                            movieDetails = searchMovieByTitle(searchQuery)
+                            // Update ViewModel to maintain state on rotation
+                            viewModel.movieDetails = movieDetails
+                            isLoading = false
+
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Retrieve Movie")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        if (movieDetails.isNotEmpty() && movieDetails != "Movie not found") {
+                            scope.launch {
+                                val movie = parseMovieString(movieDetails)
+                                movieDao.insertMovie(movie)
+                                // Show snackbar or toast here
+                                snackbarHostState.showSnackbar("Successfully added")
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = movieDetails.isNotEmpty() && movieDetails != "Movie not found"
+                ) {
+                    Text("Save movie to Database")
+                }
+            }
+
+            if (isLoading) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (movieDetails.isNotEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text(
+                        text = movieDetails,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
     }
+
 }
 
 // Search Actors Screen - Requirement 5
 @Composable
 fun SearchActorsScreen() {
-    var actorSearchQuery by remember { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf(listOf<Movie>()) }
-    var isSearching by remember { mutableStateOf(false) }
+    var actorSearchQuery by rememberSaveable { mutableStateOf("") }
+    var searchResults by rememberSaveable { mutableStateOf(listOf<Movie>()) }
+    var isSearching by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
+    val scrollState = rememberScrollState()
     // This is used to handle device rotation and save state
     val viewModel = remember { ActorSearchViewModel() }
 
@@ -293,11 +285,13 @@ fun SearchActorsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
         Text(
             text = "Search for Actors",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -361,11 +355,11 @@ fun SearchActorsScreen() {
 // Search OMDb for Movies Screen - Requirement 7
 @Composable
 fun SearchOMDbScreen() {
-    var searchQuery by remember { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf(listOf<Movie>()) }
-    var isSearching by remember { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchResults by rememberSaveable { mutableStateOf(listOf<Movie>()) }
+    var isSearching by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
+    val scrollState = rememberScrollState()
     // This is used to handle device rotation and save state
     val viewModel = remember { OmdbSearchViewModel() }
 
@@ -382,11 +376,13 @@ fun SearchOMDbScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
         Text(
             text = "Search OMDb for Movies",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
@@ -478,7 +474,7 @@ fun MovieCard(movie: Movie) {
 @Composable
 fun ViewAllMoviesScreen(movieDao: MovieDao) {
     val scope = rememberCoroutineScope()
-    var movies by remember { mutableStateOf(listOf<Movie>()) }
+    var movies by rememberSaveable { mutableStateOf(listOf<Movie>()) }
 
     LaunchedEffect(Unit) {
         scope.launch {
@@ -487,7 +483,10 @@ fun ViewAllMoviesScreen(movieDao: MovieDao) {
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("All Saved Movies", style = MaterialTheme.typography.headlineMedium)
+        Text("All Saved Movies",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
 
         if (movies.isEmpty()) {
             Text("No movies found in the database.")
@@ -501,28 +500,6 @@ fun ViewAllMoviesScreen(movieDao: MovieDao) {
     }
 }
 
-//@Composable
-//fun MovieCard(movie: Movie) {
-//    Surface(
-//        shape = MaterialTheme.shapes.medium,
-//        tonalElevation = 4.dp,
-//        modifier = Modifier
-//            .padding(vertical = 8.dp)
-//            .fillMaxWidth()
-//    ) {
-//        Column(modifier = Modifier.padding(12.dp)) {
-//            Text("Title: ${movie.title}", style = MaterialTheme.typography.titleLarge)
-//            Text("Year: ${movie.year}")
-//            Text("Released: ${movie.released}")
-//            Text("Runtime: ${movie.runtime}")
-//            Text("Genre: ${movie.genre}")
-//            Text("Director: ${movie.director}")
-//            Text("Writer: ${movie.writer}")
-//            Text("Actors: ${movie.actors}")
-//            Text("Plot: ${movie.plot}")
-//        }
-//    }
-//}
 
 // ViewModels to maintain state during rotation
 class SearchViewModel {
