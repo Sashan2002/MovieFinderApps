@@ -1,6 +1,6 @@
 package com.example.moviefinderapps
 
-
+// Import required Android Jetpack Compose and Kotlin coroutine libraries
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,17 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-
-
+// Composable function for the screen that allows the user to add a new movie
 @Composable
 fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
+    // State variables for each input field (persisted across recompositions and configuration changes)
     var title by rememberSaveable { mutableStateOf("") }
     var year by rememberSaveable { mutableStateOf("") }
     var rate by rememberSaveable { mutableStateOf("") }
@@ -35,10 +34,14 @@ fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
     var actors by rememberSaveable { mutableStateOf("") }
     var plot by rememberSaveable { mutableStateOf("") }
 
+    // Coroutine scope for performing background operations (e.g., saving to database)
     val scope = rememberCoroutineScope()
+    // Scroll state for vertical scrolling of the content
     val scrollState = rememberScrollState()
+    // Snackbar host state for showing user notifications
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Scaffold layout to show snackbar messages
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -52,9 +55,10 @@ fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
             verticalArrangement = Arrangement.Center,
 
             ) {
+            // Heading text for the screen
             Text("Enter Movie Details",  style = MaterialTheme.typography.headlineLarge,color = MaterialTheme.colorScheme.primary)
 
-
+            // Text fields for entering movie details
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
@@ -89,10 +93,12 @@ fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
 
 
             Spacer(modifier = Modifier.height(16.dp))
+            // Row for action buttons: Save Movie, View All, and Clear
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // Save movie to the database
                 Button(onClick = {
                     val movie = Movie(
                         title = title,
@@ -108,23 +114,24 @@ fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
 
                     )
 
+                    // Insert movie using coroutine
                     scope.launch {
                         movieDao.insertMovie(movie)
 
-                        snackbarHostState.showSnackbar("Successfully added")
+                        snackbarHostState.showSnackbar("Successfully added") // Show confirmation
                     }
                 }) {
                     Text("Save Movie")
                 }
 
-                // View All Movies button
+                // Navigate to screen that displays all movies
                 Button(onClick = {
                     navController.navigate("view_all_movies")
                 }) {
                     Text("View All Movies")
                 }
+                // Clear all input fields
                 Button(onClick = {
-                    // Clear all fields
                     title = ""
                     year = ""
                     rate = ""
@@ -145,19 +152,24 @@ fun AddMovieScreen(navController: NavController, movieDao: MovieDao) {
 }
 
 
-// Search Movies Screen - Requirement 3 & 4
+// Composable function for searching movies via an API
 @Composable
 fun SearchMoviesScreen() {
+    // State variables for user input and output
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var movieDetails by rememberSaveable { mutableStateOf("") }
     var isLoading by rememberSaveable { mutableStateOf(false) }
+
+    // Coroutine scope for background operations
     val scope = rememberCoroutineScope()
+    // Scroll state for screen scrolling
     val scrollState = rememberScrollState()
+    // Snackbar state for user notifications
     val snackbarHostState = remember { SnackbarHostState() }
-    // This is used to handle device rotation and save state
+    // ViewModel to preserve state across configuration changes
     val viewModel = remember { SearchViewModel() }
 
-    // Restore state if available
+    // Load saved values when screen is first launched
     LaunchedEffect(Unit) {
         if (viewModel.searchQuery.isNotEmpty()) {
             searchQuery = viewModel.searchQuery
@@ -168,6 +180,7 @@ fun SearchMoviesScreen() {
     }
 
 
+    // Scaffold with snackbar support
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -177,6 +190,7 @@ fun SearchMoviesScreen() {
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
+            // Heading for the screen
             Text(
                 text = "Search for Movies",
                 style = MaterialTheme.typography.headlineLarge,
@@ -184,23 +198,25 @@ fun SearchMoviesScreen() {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            // Text input for movie title
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = {
                     searchQuery = it
-                    // Update ViewModel to maintain state on rotation
-                    viewModel.searchQuery = it
+                    viewModel.searchQuery = it  // Keep state in ViewModel
                 },
                 label = { Text("Enter Movie Title") },
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Row for Retrieve and Save buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Retrieve movie info from API
                 Button(
                     onClick = {
                         scope.launch {
@@ -219,14 +235,15 @@ fun SearchMoviesScreen() {
 
                 Spacer(modifier = Modifier.width(8.dp))
 
+                // Save movie details to database
                 Button(
                     onClick = {
                         if (movieDetails.isNotEmpty() && movieDetails != "Movie not found") {
                             scope.launch {
                                 val movie = parseMovieString(movieDetails)
                                 movieDao.insertMovie(movie)
-                                // Show snackbar or toast here
-                                snackbarHostState.showSnackbar("Successfully added")
+
+                                snackbarHostState.showSnackbar("Successfully added") // Confirm save
                             }
                         }
                     },
@@ -237,6 +254,7 @@ fun SearchMoviesScreen() {
                 }
             }
 
+            // Loading indicator
             if (isLoading) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -244,6 +262,7 @@ fun SearchMoviesScreen() {
                 ) {
                     CircularProgressIndicator()
                 }
+                // Display movie details after search
             } else if (movieDetails.isNotEmpty()) {
                 Card(
                     modifier = Modifier
