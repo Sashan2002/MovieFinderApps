@@ -12,6 +12,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
+
 // Constant for OMDb API key – replace this with your own API key for production use
 const val API_KEY = "1d60369b"
 
@@ -89,6 +90,7 @@ fun addMoviesToDatabase(scope: CoroutineScope) {
         // Insert all movies into the database
         for (movie in moviesData) {
             movieDao.insertMovie(movie)
+
         }
     }
 }

@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Initialize the Room database named "movies.db"
-        db = Room.databaseBuilder(
+         db = Room.databaseBuilder(
             applicationContext,
             MovieFinderAppsDatabase::class.java,
             "movies.db"
@@ -161,9 +161,9 @@ fun MainScreen(navController: androidx.navigation.NavHostController) {
                         navController.navigate(Screen.SearchOMDb.route)
                     }
                     //show all movies
-//                    MovieActionButton("View All Movies", Icons.Default.List) {
-//                        navController.navigate("view_all_movies")
-//                    }
+                    MovieActionButton("View All Movies", Icons.Default.List) {
+                        navController.navigate("view_all_movies")
+                    }
 
                 }
             }
