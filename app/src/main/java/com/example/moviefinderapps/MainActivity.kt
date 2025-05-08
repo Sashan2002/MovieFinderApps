@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(navController: androidx.navigation.NavHostController) {
     val scrollState = rememberScrollState()  // Enable vertical scrolling for long content
-
+    val scope = rememberCoroutineScope() // Coroutine scope for database operations
     // Surface is the root layout that fills the screen
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -146,6 +146,7 @@ fun MainScreen(navController: androidx.navigation.NavHostController) {
                     // Button to load hardcoded movies into Room DB
                     MovieActionButton("Add Movies to DB", Icons.Default.Add) {
                         navController.navigate("add_movie")
+                        addMoviesToDatabase(scope) // Add hardcoded movies to the database
                     }
                     // Button to search movies from local database
                     MovieActionButton("Search for Movies", Icons.Default.Search) {

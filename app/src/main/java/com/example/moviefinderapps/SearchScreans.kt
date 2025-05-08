@@ -492,27 +492,65 @@ fun MovieCard(movie: Movie) {
 
 @Composable
 fun ViewAllMoviesScreen(movieDao: MovieDao) {
-    val scope = rememberCoroutineScope()
-    var movies by rememberSaveable { mutableStateOf(listOf<Movie>()) }
+    val scope = rememberCoroutineScope() // Coroutine scope for database operations
+    var movies by rememberSaveable { mutableStateOf(listOf<Movie>()) } // State to hold the list of movies, survives rotation
+    val snackbarHostState = remember { SnackbarHostState() } // Snackbar host state to show messages (e.g., "cleared" confirmation)
 
+    // Load all movies when the screen is first composed
     LaunchedEffect(Unit) {
         scope.launch {
             movies = movieDao.getAll()
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("All Saved Movies",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
+    // Scaffold provides layout structure and handles the snackbar
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)  // handles padding from Scaffold
+                .padding(16.dp)   // screen padding
+                .fillMaxSize()
+        ) {
+            // Title of the screen
+            Text(
+                "All Saved Movies",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-        if (movies.isEmpty()) {
-            Text("No movies found in the database.")
-        } else {
-            LazyColumn {
-                items(movies) { movie ->
-                    MovieCard(movie)
+            // Show message if database is empty
+            if (movies.isEmpty()) {
+                Text("No movies found in the database.")
+            } else {
+                // Display movies in a scrollable list
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)  // take up remaining space
+                        .padding(vertical = 8.dp)
+                ) {
+                    items(movies) { movie ->
+                        MovieCard(movie)  // Show each movie using reusable card
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Button to clear all movies from the database
+                Button(
+                    onClick = {
+                        scope.launch {
+                            // Clear database
+                            movieDao.deleteAll()
+                            movies = emptyList()  // Clear the displayed list
+                            // Show a snackbar confirmation
+                            snackbarHostState.showSnackbar("All movies cleared from database")
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Clear Database")
                 }
             }
         }
